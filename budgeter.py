@@ -12,7 +12,10 @@ transactions_file = sys.argv[1]
 categories = {
     "1": "fixed",
     "2": "want",
-    "3": "other"
+    "3": "home project",
+    "4": "gift",
+    "5": "health",
+    "6": "other"
 }
 
 table_name = "expenses"
@@ -24,7 +27,7 @@ def table_exists(cursor, tablename):
 
 
 def get_category():
-    bucket = input('1 = fixed | 2 = want | 3 = other\n')
+    bucket = input('1 = fixed | 2 = want | 3 = home project | 4 = gift | 5 = health | 6 = other\n')
 
     if bucket in categories:
         return categories[bucket]
