@@ -25,6 +25,13 @@ def table_exists(cursor, tablename):
     cursor.execute("""select exists(select * from information_schema.tables where table_name = %s);""", [tablename]);
     return cursor.fetchone()[0] 
 
+def get_existing_entries(cursor):
+    mapping = {}
+    cursor.execute("select distinct description,category from expenses group by description,category")
+    for row in cursor:
+        description, category = row
+        mapping[description] = category
+    return mapping
 
 def get_category():
     bucket = input('1 = fixed | 2 = want | 3 = home project | 4 = gift | 5 = health | 6 = other\n')
@@ -52,9 +59,16 @@ try:
     with open(transactions_file) as oldfile:
         reader = csv.reader(oldfile, delimiter=',')
         next(reader, None) # skip header
+        existing_entries = get_existing_entries(db_cursor)
         for row in reader:
             print('\t'.join(row))
-            category = get_category()
+
+            if row[2] in existing_entries:
+                print(f"{row[2]} exists alread. classifying as {existing_entries[row[2]]}\n")
+                category = existing_entries[row[2]]
+            else:
+                category = get_category()
+
             try:
                 db_cursor.execute(
                     f"insert into {table_name} (date, description, category, amount) values (%s, %s, %s, %s);",
